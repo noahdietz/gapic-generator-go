@@ -15,7 +15,9 @@
 package gengapic
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -77,6 +79,18 @@ func Gen(genReq *plugin.CodeGeneratorRequest) (*plugin.CodeGeneratorResponse, er
 				err = yaml.NewDecoder(f).Decode(&g.serviceConfig)
 				if err != nil {
 					return &g.resp, errors.E(nil, "error decoding service config: %v", err)
+				}
+			case "grpc-service-config":
+				data, err := ioutil.ReadFile(s[e+1:])
+				if err != nil {
+					return &g.resp, errors.E(nil, "error reading gRPC service config: %v", err)
+				}
+
+				// TODO(ndietz) write a proto for this type in order to use jsonpb
+				g.grpcConf = &grpcServiceConfig{}
+				err = json.Unmarshal(data, g.grpcConf)
+				if err != nil {
+					return &g.resp, errors.E(nil, "error unmarshaling gPRC service config: %v", err)
 				}
 			}
 		}
@@ -165,6 +179,8 @@ type generator struct {
 
 	// Parsed service config from plugin option
 	serviceConfig *serviceConfig
+
+	grpcConf *grpcServiceConfig
 }
 
 func (g *generator) init(files []*descriptor.FileDescriptorProto) {
