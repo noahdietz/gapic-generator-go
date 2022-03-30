@@ -19,7 +19,7 @@ http_archive(
     # that is named go_googleapis. googleapis already has all of the necessary
     # rules, so using the rules_go patched version isn't necessary and it lags in
     # freshness which would require dependency overrides anyways.
-    name = "go_googleapis",
+    name = "com_google_googleapis",
     # Use `master` because googleapis isn't semantically versioned and the protos
     # this repo cares about (the annotation definitions) do not have breaking
     # changes, so we can live on HEAD. Pinning to commit is cumbersome to maintain.
@@ -27,7 +27,7 @@ http_archive(
     urls = ["https://github.com/googleapis/googleapis/archive/master.tar.gz"],
 )
 
-load("@go_googleapis//:repository_rules.bzl", "switched_rules_by_language")
+load("@com_google_googleapis//:repository_rules.bzl", "switched_rules_by_language")
 switched_rules_by_language(name = "com_google_googleapis_imports", go = True, grpc = True)
 
 http_archive(
@@ -37,6 +37,7 @@ http_archive(
         "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.31.0/rules_go-v0.31.0.zip",
         "https://github.com/bazelbuild/rules_go/releases/download/v0.31.0/rules_go-v0.31.0.zip",
     ],
+    repo_mapping = {"@go_googleapis": "@com_google_googleapis"},
 )
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
@@ -54,6 +55,7 @@ http_archive(
         "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/bazel-gazelle/releases/download/v0.25.0/bazel-gazelle-v0.25.0.tar.gz",
         "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.25.0/bazel-gazelle-v0.25.0.tar.gz",
     ],
+    repo_mapping = {"@go_googleapis": "@com_google_googleapis"},
 )
 
 # gazelle:repo bazel_gazelle
