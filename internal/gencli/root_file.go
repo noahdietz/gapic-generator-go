@@ -26,19 +26,21 @@ const (
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/jsonpb"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
 var Verbose, OutputJSON bool
 var ctx = context.Background()
-var marshaler = &jsonpb.Marshaler{Indent: "  "}
+var marshaler = &protojson.MarshalOptions{
+	MultiLine: true,
+    Indent: "  ",
+}
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Print verbose output")
@@ -75,9 +77,7 @@ func printMessage(data interface{}) {
 	if msg, ok := data.(proto.Message); ok {
 		s = msg.String()
 		if OutputJSON {
-			var b bytes.Buffer
-			marshaler.Marshal(&b, msg)
-			s = b.String()
+			s = marshaler.Format(msg)
 		}
 	}
 
